@@ -9,11 +9,13 @@ createRoot(document.getElementById("root")).render(
   </StrictMode>
 );
 
-// Registro del service worker (PWA offline). Solo en producción/https/localhost.
+// Desregistro automático de cualquier service worker previo.
+// Si un usuario tiene el SW viejo atascado, se elimina al entrar a la app
+// (soluciona el ERR_FAILED al recargar en producción).
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(() => {
-      /* registro fallido: la app sigue funcionando sin offline */
-    });
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    for (let registration of registrations) {
+      registration.unregister();
+    }
   });
 }
